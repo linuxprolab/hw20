@@ -13,7 +13,7 @@
 
 ### Запуск стенда 
 ```
-git clone 
+git clone https://github.com/linuxprolab/hw20
 ```
 ```
 vagrant up
