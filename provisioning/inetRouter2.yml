@@ -1,0 +1,54 @@
+---
+
+- name: disable default route
+  lineinfile:
+    dest: /etc/sysconfig/network-scripts/ifcfg-eth0
+    line: DEFROUTE=no
+  notify: restart network
+- name: add default gateway for inetRouter2 
+  lineinfile:
+    dest: /etc/sysconfig/network-scripts/ifcfg-eth1
+    line: GATEWAY=192.168.255.1
+  notify: restart network
+
+- name: install iptables
+  yum:
+    name:
+      - iptables
+      - iptables-services
+      - tcpdump
+    state: present
+    update_cache: true
+
+- name: copy iptables config
+  template:
+    src: iptables.inetRouter2
+    dest: /etc/sysconfig/iptables
+    owner: root
+    group: root
+    mode: 0600
+
+- name: start and enable iptables service
+  service:
+    name: iptables
+    state: restarted
+    enabled: true
+
+- name: set up routes on "{{ ansible_hostname }}" eth1
+  template:
+    src: inetRouter2_route_eth1.j2
+    dest: /etc/sysconfig/network-scripts/route-eth1
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart network
+
+- name: set up forward packages on router
+  sysctl:
+    name: net.ipv4.conf.all.forwarding
+    value: '1'
+    state: present
+    sysctl_file: /etc/sysctl.conf
+    ignoreerrors: yes
+    reload: yes
+  notify: restart network

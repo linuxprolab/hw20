@@ -1,0 +1,26 @@
+---
+
+- name: disable default route
+  lineinfile:
+    dest: /etc/sysconfig/network-scripts/ifcfg-eth0
+    line: DEFROUTE=no
+  notify: restart network
+- name: add default gateway for centralServer
+  lineinfile:
+    dest: /etc/sysconfig/network-scripts/ifcfg-eth1
+    line: GATEWAY=192.168.0.1
+  notify: restart network
+- name: install soft 
+  yum:
+    name:
+      - epel-release
+      - tcpdump
+    state: present
+- name: install nginx
+  yum:
+    name:
+      - nginx
+    state: present
+  notify:
+    - reload nginx
+

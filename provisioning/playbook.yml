@@ -1,0 +1,44 @@
+---
+
+- hosts: all
+  become: yes
+
+  tasks:
+    - name: Set up inetRouter
+      import_tasks: inetRouter.yml
+      when: ansible_hostname == "inetRouter"
+
+    - name: Set up inetRouter
+      import_tasks: inetRouter2.yml
+      when: ansible_hostname == "inetRouter2"
+
+    - name: Set up centralRouter
+      import_tasks: centralRouter.yml
+      when: ansible_hostname == "centralRouter"
+
+    - name: Set up centralServer
+      import_tasks: centralServer.yml
+      when: ansible_hostname == "centralServer"
+
+  handlers:
+    - name: "restart nginx"
+      systemd:
+        name: nginx
+        state: restarted
+        enabled: yes
+
+    - name: reload nginx
+      systemd:
+        name: nginx
+        state: reloaded
+
+    - name: restart network
+      service: 
+        name: network
+        state: restarted
+
+    - name: restart sshd
+      service: 
+        name: sshd
+        state: restarted
+
